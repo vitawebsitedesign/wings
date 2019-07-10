@@ -1,0 +1,62 @@
+<style>
+	.half-width {
+		float: left;
+		width: 50%;
+	}
+</style>
+
+<div class="half-width">
+	<fieldset>
+		<legend>
+			Listings less than: $
+			<input type="number" id="priceLimitField" placeholder="price limit" value="600000" onchange="showFilteredListings()" />
+		</legend>
+		<button onclick="clickAllFilteredListings()">Open the first 6 links shown below, as new tabs</button>
+		<ul id="filtered-listings">
+		</ul>
+	</fieldset>
+</div>
+
+<div class="half-width">
+	<fieldset>
+		<legend>Unpriced listings</legend>
+		<ul id="unpriced-listings">
+		</ul>
+	</fieldset>
+</div>
+
+<script>
+
+var json = $JSON_PLACEHOLDER;
+
+function showFilteredListings() {
+	var priceLimitStr = document.getElementById('priceLimitField').value;
+	var priceLimit = parseFloat(priceLimitStr);
+
+	var listingsUnderPriceLimit = json.filter(listing => listing.price ? parseFloat(listing.price.replace(/[^0-9.-]+/g,"")) < priceLimit : false);
+	var listingUrls = listingsUnderPriceLimit.map(listing => `https://www.realestate.com.au/${listing.url}`);
+	var listingUrlsHtml = listingUrls.map(url => `<li><a href="${url}" target="_blank" class="filtered-listing-link">${url}</a></li>`);
+
+	document.getElementById('filtered-listings').innerHTML = listingUrlsHtml;
+}
+showFilteredListings();
+
+function showUnpricedListings() {
+	var listingsUnderPriceLimit = json.filter(listing => listing.price === null);
+	var listingUrls = listingsUnderPriceLimit.map(listing => `https://www.realestate.com.au/${listing.url}`);
+	var listingUrlsHtml = listingUrls.map(url => `<li><a href="${url}" target="_blank">${url}</a></li>`);
+
+	document.getElementById('unpriced-listings').innerHTML = listingUrlsHtml;
+}
+showUnpricedListings();
+
+function clickAllFilteredListings() {
+	var links = document.getElementsByClassName('filtered-listing-link');
+	var maxLinksToClick = 6;
+	var numLinksToClick = Math.min(maxLinksToClick, links.length);
+	for (var link = 0; link < numLinksToClick; link++) {
+		links[link].click();
+	}
+}
+
+</script>
